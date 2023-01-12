@@ -1,26 +1,21 @@
-fn main() {
-    let user1 = User{
-        active: true,
-        username: "Someone".to_string(),
-        sign_in_count: 0
-    };
-    println!("{}",user1.username);
-
-    let user2 = build_user(String::from("SomeoneElse"));
-    println!("{}",user2.username)
+struct Square {
+    width: i32,
+    height: i32
 }
 
-struct User {
-    active: bool,
-    username: String,
-    sign_in_count: u32 
-}
+impl Square {
+    fn area(&self) -> i32 {
+        self.width * self.height
+    }
 
-fn build_user(username: String) -> User {
-    User{
-        username,
-        active: true,
-        sign_in_count: 1
+    fn change_width(&mut self, new_width: i32) {
+        self.width = new_width
     }
 }
 
+fn main() {
+    let mut sq = Square {width: 5, height: 5};
+    sq.change_width(10);
+    println!("{}",sq.area());
+
+}
