@@ -1,38 +1,65 @@
-struct Car {
-    mpg: i32,
-    color: &'static str,
-    top_speed: f32
+use std::mem;
+
+#[allow(dead_code)]
+#[derive(Debug, Clone, Copy)]
+struct Point {
+    x: f64,
+    y: f64,
 }
 
-impl Car {
-    fn set_mpg(&mut self, new_mpg: i32) {
-        self.mpg = new_mpg
-    }
-
-    fn set_color(&mut self, new_color: &'static str) {
-        self.color = new_color
-    }
-
-    fn set_top_speed(&mut self, new_top_speed: f32) {
-        self.top_speed = new_top_speed
-    }
+// A Rectangle can be specified by where its top left and bottom right 
+// corners are in space
+#[allow(dead_code)]
+struct Rectangle {
+    top_left: Point,
+    bottom_right: Point,
 }
 
-fn main () {
-    let mut car = Car {
-        mpg: 10,
-        color: "White",
-        top_speed: 100.01
+fn origin() -> Point {
+    Point { x: 0.0, y: 0.0 }
+}
+
+fn boxed_origin() -> Box<Point> {
+    // Allocate this point on the heap, and return a pointer to it
+    Box::new(Point { x: 0.0, y: 0.0 })
+}
+
+fn main() {
+    // (all the type annotations are superfluous)
+    // Stack allocated variables
+    let point: Point = origin();
+    let rectangle: Rectangle = Rectangle {
+        top_left: origin(),
+        bottom_right: Point { x: 3.0, y: -4.0 }
     };
-    println!("{}",car.mpg);
-    println!("{}",car.color);
-    println!("{}",car.top_speed);
 
-    car.set_mpg(15);
-    car.set_color("Blue");
-    car.set_top_speed(40.01);
+    // Heap allocated rectangle
+    let boxed_rectangle: Box<Rectangle> = Box::new(Rectangle {
+        top_left: origin(),
+        bottom_right: Point { x: 3.0, y: -4.0 },
+    });
 
-    println!("{}",car.mpg);
-    println!("{}",car.color);
-    println!("{}",car.top_speed);
+    // The output of functions can be boxed
+    let boxed_point: Box<Point> = Box::new(origin());
+
+    // Double indirection
+    let box_in_a_box: Box<Box<Point>> = Box::new(boxed_origin());
+
+    println!("Point occupies {} bytes on the stack",
+             mem::size_of_val(&point));
+    println!("Rectangle occupies {} bytes on the stack",
+             mem::size_of_val(&rectangle));
+
+    // box size == pointer size
+    println!("Boxed point occupies {} bytes on the stack",
+             mem::size_of_val(&boxed_point));
+    println!("Boxed rectangle occupies {} bytes on the stack",
+             mem::size_of_val(&boxed_rectangle));
+    println!("Boxed box occupies {} bytes on the stack",
+             mem::size_of_val(&box_in_a_box));
+
+    // Copy the data contained in `boxed_point` into `unboxed_point`
+    let unboxed_point: Point = *boxed_point;
+    println!("Unboxed point occupies {} bytes on the stack",
+             mem::size_of_val(&unboxed_point));
 }
